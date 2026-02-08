@@ -154,14 +154,7 @@ void Chip8::OP_8xy4() {
 	uint8_t Vy = extract_y(opcode);
 
 	uint16_t sum = registers[Vx] + registers[Vy];
-
-	if (sum > 255U) {
-		registers[0xF] = 1;
-	}
-	else {
-		registers[0xF] = 0;
-	}
-
+	registers[0xF] = (sum > 255U) ? 1 : 0;
 	registers[Vx] = sum & 0xFF;
 }
 
@@ -178,4 +171,58 @@ void Chip8::OP_8xy5() {
 void Chip8::OP_8xy6() {
 	uint8_t Vx = extract_x(opcode);
 
+	registers[0xF] = (registers[Vx] & 0x1) ? 1 : 0;
+
+	registers[Vx] = registers[Vx] >> 1;
+}
+
+
+void Chip8::OP_8xy7() {
+	uint8_t Vx = extract_x(opcode);
+	uint8_t Vy = extract_y(opcode);
+
+	registers[0xF] = registers[Vy] > registers[Vx] ? 1 : 0;
+
+	uint8_t diff = static_cast<uint8_t>(registers[Vy] - registers[Vx]);
+	registers[Vx] = diff;
+}
+
+void Chip8::OP_8xyE() {
+	uint8_t Vx = extract_x(opcode);
+
+	registers[0xF] = (registers[Vx] & 0x80) >> 8 ? 1 : 0;
+
+	registers[Vx] = registers[Vx] << 1;
+}
+
+void Chip8::OP_9xy0() {
+	uint8_t Vx = extract_x(opcode);
+	uint8_t Vy = extract_y(opcode);
+
+	if (registers[Vx] != registers[Vy])
+	{
+		pc += 2;
+	}
+}
+
+void Chip8::OP_Annn() {
+	uint16_t addr = extract_nnn(opcode);
+	index = addr;
+}
+
+void Chip8::OP_Bnnn() {
+	uint16_t addr = extract_nnn(opcode);
+	pc += static_cast<uint16_t>(registers[0]) + addr;
+}
+
+void Chip8::OP_Cxkk() {
+	uint8_t Vx = extract_x(opcode);
+	uint8_t byte = extract_kk(opcode);
+	registers[Vx] = generate_random_byte() & byte;
+}
+
+void Chip8::OP_Dxyn() {
+	uint8_t Vx = extract_x(opcode);
+	uint8_t Vy = extract_y(opcode);
+	uint8_t n = extract_n(opcode);
 }

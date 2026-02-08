@@ -9,8 +9,13 @@
 
 class Chip8 {
 private:
-	const unsigned int ROM_START_ADDRESS = 0x200;
-	const unsigned int FONTSET_START_ADDRESS = 0x050;
+	// Constants
+	static constexpr unsigned int ROM_START_ADDRESS = 0x200;
+	static constexpr unsigned int FONTSET_START_ADDRESS = 0x050;
+	static constexpr unsigned int VIDEO_HEIGHT = 64;
+	static constexpr unsigned int VIDEO_WIDTH = 32;
+	static constexpr unsigned int MEM_SIZE = 4096;
+	static constexpr unsigned int BUF_LEN = 16;
 
 	static const int   FONTSET_SIZE = 80;
 	uint8_t fontset[FONTSET_SIZE] =
@@ -38,20 +43,19 @@ private:
 	std::uniform_int_distribution<int> dist;
 
 public:
-
 	// Registers
-	uint8_t  registers[16]{}; // GPRs
-	uint16_t index{};         // I
-	uint16_t pc{};            // PC
-	uint8_t  sp{};            // SP
-	uint8_t  delay_timer{};   // DT
-	uint8_t  sound_timer{};   // ST
+	uint8_t  registers[BUF_LEN]{};	// General Purpose Registers
+	uint16_t index{};				// I register
+	uint16_t pc{};					// Program Counter
+	uint8_t  sp{};					// Stack Pointer
+	uint8_t  delay_timer{};			// DT register
+	uint8_t  sound_timer{};			// ST register
 
 	// Regions
-	uint8_t  memory[4096]{};
-	uint16_t stack[16]{};
-	uint8_t  keypad[16]{};
-	uint32_t video[64 * 32]{};
+	uint8_t  memory[MEM_SIZE]{};
+	uint16_t stack[BUF_LEN]{};
+	uint8_t  keypad[BUF_LEN]{};
+	uint32_t video[VIDEO_HEIGHT * VIDEO_WIDTH]{};
 
 	// Op
 	uint16_t opcode{};
@@ -63,7 +67,7 @@ public:
 	void     load_ROM(const char* filename);
 	uint8_t  generate_random_byte();
 
-	// Decode bitmasks
+	// Helpful bitmasks
 	uint16_t extract_nnn(uint16_t opcode);
 	uint8_t  extract_n(uint16_t opcode);
 	uint8_t  extract_x(uint16_t opcode);
