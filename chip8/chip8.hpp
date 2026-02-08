@@ -1,0 +1,112 @@
+#pragma once
+
+#include <cstdint>
+#include <fstream>
+#include <vector>
+#include <chrono>
+#include <random>
+
+
+class Chip8 {
+private:
+	const unsigned int ROM_START_ADDRESS = 0x200;
+	const unsigned int FONTSET_START_ADDRESS = 0x050;
+
+	static const int   FONTSET_SIZE = 80;
+	uint8_t fontset[FONTSET_SIZE] =
+	{
+		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+		0x20, 0x60, 0x20, 0x20, 0x70, // 1
+		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+		0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+		0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+		0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+		0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+		0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+		0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+		0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+		0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+		0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+		0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+		0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+	};
+
+	// Random
+	std::mt19937 gen;
+	std::uniform_int_distribution<int> dist;
+
+public:
+
+	// Registers
+	uint8_t  registers[16]{}; // GPRs
+	uint16_t index{};         // I
+	uint16_t pc{};            // PC
+	uint8_t  sp{};            // SP
+	uint8_t  delay_timer{};   // DT
+	uint8_t  sound_timer{};   // ST
+
+	// Regions
+	uint8_t  memory[4096]{};
+	uint16_t stack[16]{};
+	uint8_t  keypad[16]{};
+	uint32_t video[64 * 32]{};
+
+	// Op
+	uint16_t opcode{};
+
+	// Constructor
+	Chip8();
+
+	// Interface
+	void     load_ROM(const char* filename);
+	uint8_t  generate_random_byte();
+
+	// Decode bitmasks
+	uint16_t extract_nnn(uint16_t opcode);
+	uint8_t  extract_n(uint16_t opcode);
+	uint8_t  extract_x(uint16_t opcode);
+	uint8_t  extract_y(uint16_t opcode);
+	uint8_t  extract_kk(uint16_t opcode);
+
+	// Instructions
+	void OP_00E0();
+	void OP_00EE();
+
+	void OP_1nnn();
+	void OP_2nnn();
+	void OP_3xkk();
+	void OP_4xkk();
+	void OP_5xy0();
+	void OP_6xkk();
+	void OP_7xkk();
+	void OP_Annn();
+	void OP_Bnnn();
+	void OP_Cxkk();
+	void OP_Dxyn();
+
+	void OP_8xy0();
+	void OP_8xy1();
+	void OP_8xy2();
+	void OP_8xy3();
+	void OP_8xy4();
+	void OP_8xy5();
+	void OP_8xy6();
+	void OP_8xy7();
+	void OP_8xyE();
+	void OP_9xy0();
+
+	void OP_Ex9E();
+	void OP_ExA1();
+	void OP_Fx07();
+	void OP_Fx0A();
+	void OP_Fx15();
+	void OP_Fx18();
+	void OP_Fx1E();
+	void OP_Fx29();
+	void OP_Fx33();
+	void OP_Fx55();
+	void OP_Fx65();
+
+};
