@@ -14,7 +14,7 @@ Chip8::Chip8() {
 	gen.seed(static_cast<unsigned int>(clock::now().time_since_epoch().count()));
 	dist = std::uniform_int_distribution<int>(0, 255U);
 
-	// TODO: Create function pointers for decode / execute step
+	// TODO: Create function "jump" table for decode / execute step
 
 }
 
@@ -64,7 +64,9 @@ void Chip8::load_ROM(const char* filename) {
 }
 
 void Chip8::OP_00E0() {
-	std::fill(std::begin(video), std::end(video), 0);
+	for (auto row : video) {
+		row.fill(0);
+	}
 }
 
 void Chip8::OP_00EE() {
@@ -225,4 +227,9 @@ void Chip8::OP_Dxyn() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 	uint8_t n = extract_n(opcode);
+
+	uint8_t row = Vx * VIDEO_WIDTH;
+	uint8_t col = Vy;
+
+
 }

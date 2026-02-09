@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 #include <fstream>
 #include <vector>
@@ -44,18 +45,18 @@ private:
 
 public:
 	// Registers
-	uint8_t  registers[BUF_LEN]{};	// General Purpose Registers
-	uint16_t index{};				// I register
-	uint16_t pc{};					// Program Counter
-	uint8_t  sp{};					// Stack Pointer
-	uint8_t  delay_timer{};			// DT register
-	uint8_t  sound_timer{};			// ST register
+	std::array<uint8_t, BUF_LEN> registers{};	// General Purpose Registers
+	uint16_t index{};							// I register
+	uint16_t pc{};								// Program Counter
+	uint8_t  sp{};								// Stack Pointer
+	uint8_t  delay_timer{};						// DT register
+	uint8_t  sound_timer{};						// ST register
 
 	// Regions
-	uint8_t  memory[MEM_SIZE]{};
-	uint16_t stack[BUF_LEN]{};
-	uint8_t  keypad[BUF_LEN]{};
-	uint32_t video[VIDEO_HEIGHT * VIDEO_WIDTH]{};
+	std::array<uint8_t, MEM_SIZE> memory{};
+	std::array<uint16_t, BUF_LEN> stack{};
+	std::array<uint8_t, BUF_LEN> keypad{};
+	std::array<std::array<uint32_t, VIDEO_WIDTH>, VIDEO_HEIGHT> video{};
 
 	// Op
 	uint16_t opcode{};
