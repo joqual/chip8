@@ -17,6 +17,7 @@ private:
 	static constexpr unsigned int VIDEO_WIDTH = 32;
 	static constexpr unsigned int MEM_SIZE = 4096;
 	static constexpr unsigned int BUF_LEN = 16;
+	static constexpr unsigned int PIXEL_ON = 0xFFFFFFFF;
 
 	static const int   FONTSET_SIZE = 80;
 	uint8_t fontset[FONTSET_SIZE] =

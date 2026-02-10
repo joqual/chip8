@@ -109,8 +109,7 @@ void Chip8::OP_5xy0() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 
-	if (registers[Vx] == registers[Vy])
-	{
+	if (registers[Vx] == registers[Vy]) {
 		pc += 2;
 	}
 }
@@ -201,8 +200,7 @@ void Chip8::OP_9xy0() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 
-	if (registers[Vx] != registers[Vy])
-	{
+	if (registers[Vx] != registers[Vy]) {
 		pc += 2;
 	}
 }
@@ -226,10 +224,36 @@ void Chip8::OP_Cxkk() {
 void Chip8::OP_Dxyn() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
-	uint8_t n = extract_n(opcode);
+	uint8_t height = extract_n(opcode);
+	uint8_t width = 8; // We know sprites are 8 bits wide
 
-	uint8_t row = Vx * VIDEO_WIDTH;
-	uint8_t col = Vy;
+	// Wrap if going beyond screen boundaries
+	uint8_t x_start_pos = registers[Vx] % VIDEO_WIDTH;
+	uint8_t y_start_pos = registers[Vy] % VIDEO_HEIGHT;
 
+	registers[0xF] = 0;
+
+	for (int row = 0; row < height; ++row) {
+		uint8_t sprite_byte = memory[index + row];
+
+		for (int col = 0; col < 8; ++col) {
+			// Shift through each bit in the row, left to right
+			uint8_t sprite_bit = sprite_byte & (0x80u >> col);
+			uint8_t pixel_y = (y_start_pos + row) % VIDEO_HEIGHT;
+			uint8_t pixel_x = (x_start_pos + col) % VIDEO_WIDTH;
+			uint32_t* pixel = &video.at(pixel_y).at(pixel_x);
+
+			// Sprite bit is on
+			if (sprite_bit) {
+				// Will erase pixel, set VF
+				if (*pixel == PIXEL_ON) {
+					registers[0xF] = 1;
+				}
+
+				// xor the pixel
+				*pixel ^= PIXEL_ON;
+			}
+		}
+	}
 
 }
