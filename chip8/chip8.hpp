@@ -76,6 +76,10 @@ public:
 	uint8_t  extract_y(uint16_t opcode);
 	uint8_t  extract_kk(uint16_t opcode);
 
+	// Peripherals
+	const char get_current_key();
+	const char wait_keypress();
+
 	// Instructions
 	void OP_00E0();
 	void OP_00EE();

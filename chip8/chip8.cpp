@@ -42,6 +42,17 @@ uint8_t Chip8::extract_kk(uint16_t opcode) {
 	return opcode & 0x00FF;
 }
 
+// Peripherals
+const char Chip8::get_current_key() {
+	// TODO
+	return 0;
+}
+
+const char Chip8::wait_keypress() {
+	// TODO
+	return 0;
+}
+
 void Chip8::load_ROM(const char* filename) {
 	// Open file as binary stream, and move fptr to end
 	std::ifstream file(filename, std::ios::binary | std::ios::ate);
@@ -91,7 +102,7 @@ void Chip8::OP_3xkk() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t byte = extract_kk(opcode);
 
-	if (registers[Vx] == byte) {
+	if (registers.at(Vx) == byte) {
 		pc += 2;
 	}
 }
@@ -100,7 +111,7 @@ void Chip8::OP_4xkk() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t byte = extract_kk(opcode);
 
-	if (registers[Vx] != byte) {
+	if (registers.at(Vx) != byte) {
 		pc += 2;
 	}
 }
@@ -109,7 +120,7 @@ void Chip8::OP_5xy0() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 
-	if (registers[Vx] == registers[Vy]) {
+	if (registers.at(Vx) == registers.at(Vy)) {
 		pc += 2;
 	}
 }
@@ -117,64 +128,64 @@ void Chip8::OP_5xy0() {
 void Chip8::OP_6xkk() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t kk = extract_kk(opcode);
-	registers[Vx] = kk;
+	registers.at(Vx) = kk;
 }
 
 void Chip8::OP_7xkk() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t kk = extract_kk(opcode);
-	registers[Vx] += kk;
+	registers.at(Vx) += kk;
 }
 
 void Chip8::OP_8xy0() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
-	registers[Vx] = registers[Vy];
+	registers.at(Vx) = registers.at(Vy);
 }
 
 void Chip8::OP_8xy1() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
-	registers[Vx] |= registers[Vy];
+	registers.at(Vx) |= registers.at(Vy);
 }
 
 void Chip8::OP_8xy2() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
-	registers[Vx] &= registers[Vy];
+	registers.at(Vx) &= registers.at(Vy);
 }
 
 void Chip8::OP_8xy3() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
-	registers[Vx] ^= registers[Vy];
+	registers.at(Vx) ^= registers.at(Vy);
 }
 
 void Chip8::OP_8xy4() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 
-	uint16_t sum = registers[Vx] + registers[Vy];
+	uint16_t sum = registers.at(Vx) + registers.at(Vy);
 	registers[0xF] = (sum > 255U) ? 1 : 0;
-	registers[Vx] = sum & 0xFF;
+	registers.at(Vx) = sum & 0xFF;
 }
 
 void Chip8::OP_8xy5() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 
-	registers[0xF] = registers[Vx] > registers[Vy] ? 1 : 0;
+	registers[0xF] = registers.at(Vx) > registers.at(Vy) ? 1 : 0;
 
-	uint8_t diff = static_cast<uint8_t>(registers[Vx] - registers[Vy]);
-	registers[Vx] = diff;
+	uint8_t diff = static_cast<uint8_t>(registers.at(Vx) - registers.at(Vy));
+	registers.at(Vx) = diff;
 }
 
 void Chip8::OP_8xy6() {
 	uint8_t Vx = extract_x(opcode);
 
-	registers[0xF] = (registers[Vx] & 0x1) ? 1 : 0;
+	registers[0xF] = (registers.at(Vx) & 0x1) ? 1 : 0;
 
-	registers[Vx] = registers[Vx] >> 1;
+	registers.at(Vx) = registers.at(Vx) >> 1;
 }
 
 
@@ -182,25 +193,25 @@ void Chip8::OP_8xy7() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 
-	registers[0xF] = registers[Vy] > registers[Vx] ? 1 : 0;
+	registers[0xF] = registers.at(Vy) > registers.at(Vx) ? 1 : 0;
 
-	uint8_t diff = static_cast<uint8_t>(registers[Vy] - registers[Vx]);
-	registers[Vx] = diff;
+	uint8_t diff = static_cast<uint8_t>(registers.at(Vy) - registers.at(Vx));
+	registers.at(Vx) = diff;
 }
 
 void Chip8::OP_8xyE() {
 	uint8_t Vx = extract_x(opcode);
 
-	registers[0xF] = (registers[Vx] & 0x80) >> 8 ? 1 : 0;
+	registers[0xF] = (registers.at(Vx) & 0x80) >> 8 ? 1 : 0;
 
-	registers[Vx] = registers[Vx] << 1;
+	registers.at(Vx) = registers.at(Vx) << 1;
 }
 
 void Chip8::OP_9xy0() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t Vy = extract_y(opcode);
 
-	if (registers[Vx] != registers[Vy]) {
+	if (registers.at(Vx) != registers.at(Vy)) {
 		pc += 2;
 	}
 }
@@ -218,7 +229,7 @@ void Chip8::OP_Bnnn() {
 void Chip8::OP_Cxkk() {
 	uint8_t Vx = extract_x(opcode);
 	uint8_t byte = extract_kk(opcode);
-	registers[Vx] = generate_random_byte() & byte;
+	registers.at(Vx) = generate_random_byte() & byte;
 }
 
 void Chip8::OP_Dxyn() {
@@ -228,8 +239,8 @@ void Chip8::OP_Dxyn() {
 	uint8_t width = 8; // We know sprites are 8 bits wide
 
 	// Wrap if going beyond screen boundaries
-	uint8_t x_start_pos = registers[Vx] % VIDEO_WIDTH;
-	uint8_t y_start_pos = registers[Vy] % VIDEO_HEIGHT;
+	uint8_t x_start_pos = registers.at(Vx) % VIDEO_WIDTH;
+	uint8_t y_start_pos = registers.at(Vy) % VIDEO_HEIGHT;
 
 	registers[0xF] = 0;
 
@@ -255,5 +266,52 @@ void Chip8::OP_Dxyn() {
 			}
 		}
 	}
+}
 
+void Chip8::OP_Ex9E() {
+	uint8_t Vx = extract_x(opcode);
+
+	// TODO: implement
+	const char key = get_current_key();
+
+	if (key == registers.at(Vx)) {
+		pc += 2;
+	}
+}
+
+void Chip8::OP_ExA1() {
+	uint8_t Vx = extract_x(opcode);
+
+	// TODO: implement
+	const char key = get_current_key();
+
+	if (key != registers.at(Vx)) {
+		pc += 2;
+	}
+}
+
+void Chip8::OP_Fx07() {
+	uint8_t Vx = extract_x(opcode);
+	registers.at(Vx) = delay_timer;
+}
+
+void Chip8::OP_Fx0A() {
+	uint8_t Vx = extract_x(opcode);
+	uint8_t key = wait_keypress();
+	registers.at(Vx) = key;
+}
+
+void Chip8::OP_Fx15() {
+	uint8_t Vx = extract_x(opcode);
+	delay_timer = registers.at(Vx);
+}
+
+void Chip8::OP_Fx18() {
+	uint8_t Vx = extract_x(opcode);
+	sound_timer = registers.at(Vx);
+}
+
+void Chip8::OP_Fx1E() {
+	uint8_t Vx = extract_x(opcode);
+	index += registers.at(Vx);
 }
