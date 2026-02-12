@@ -178,6 +178,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="chip8.cpp" />
+    <ClCompile Include="ops.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chip8.hpp" />

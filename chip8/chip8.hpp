@@ -118,5 +118,4 @@ public:
 	void OP_Fx33();
 	void OP_Fx55();
 	void OP_Fx65();
-
 };
