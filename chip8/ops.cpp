@@ -198,7 +198,6 @@ void Chip8::OP_Dxyn() {
 void Chip8::OP_Ex9E() {
 	uint8_t Vx = extract_x(opcode);
 
-	// TODO: implement
 	const char key = get_current_key();
 
 	if (key == registers.at(Vx)) {
@@ -209,7 +208,6 @@ void Chip8::OP_Ex9E() {
 void Chip8::OP_ExA1() {
 	uint8_t Vx = extract_x(opcode);
 
-	// TODO: implement
 	const char key = get_current_key();
 
 	if (key != registers.at(Vx)) {

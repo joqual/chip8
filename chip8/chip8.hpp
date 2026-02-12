@@ -48,7 +48,7 @@ public:
 	// Registers
 	std::array<uint8_t, BUF_LEN> registers{};	// General Purpose Registers
 	uint16_t index{};							// I register
-	uint16_t pc{};								// Program Counter
+	uint16_t pc{ ROM_START_ADDRESS };			// Program Counter
 	uint8_t  sp{};								// Stack Pointer
 	uint8_t  delay_timer{};						// DT register
 	uint8_t  sound_timer{};						// ST register
@@ -68,6 +68,7 @@ public:
 	// Interface
 	void     load_ROM(const char* filename);
 	uint8_t  generate_random_byte();
+	void	 Cycle();
 
 	// Helpful bitmasks
 	uint16_t extract_nnn(uint16_t opcode);

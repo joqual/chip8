@@ -14,8 +14,7 @@ Chip8::Chip8() {
 	gen.seed(static_cast<unsigned int>(clock::now().time_since_epoch().count()));
 	dist = std::uniform_int_distribution<int>(0, 255U);
 
-	// TODO: Create function "jump" table for decode / execute step
-
+	// TODO: Init SDL
 }
 
 uint8_t Chip8::generate_random_byte() {
@@ -72,4 +71,15 @@ void Chip8::load_ROM(const char* filename) {
 			memory[ROM_START_ADDRESS + i] = buf[i];
 		}
 	}
+}
+
+void Chip8::Cycle() {
+	// Fetch instruction
+	opcode = memory.at(pc);
+
+	// Decode / Execute
+	// TODO: map opcode to an op group table + offset
+	// then call into the right OP function
+
+	pc += 2;
 }
