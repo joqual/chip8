@@ -1,12 +1,12 @@
 #pragma once
 
+#include <algorithm>
 #include <array>
+#include <chrono>
 #include <cstdint>
 #include <fstream>
-#include <vector>
-#include <chrono>
 #include <random>
-
+#include <vector>
 
 class Chip8 {
 private:

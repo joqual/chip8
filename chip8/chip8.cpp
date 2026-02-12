@@ -5,7 +5,7 @@ Chip8::Chip8() {
 	pc = ROM_START_ADDRESS;
 
 	// Load fonts
-	for (int i = 0; i < FONTSET_SIZE; i++) {
+	for (int i = 0; i < FONTSET_SIZE; ++i) {
 		memory[FONTSET_START_ADDRESS + i] = fontset[i];
 	}
 
@@ -68,7 +68,7 @@ void Chip8::load_ROM(const char* filename) {
 		file.close();
 
 		// Load ROM into Chip8
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < size; ++i) {
 			memory[ROM_START_ADDRESS + i] = buf[i];
 		}
 	}
@@ -314,4 +314,40 @@ void Chip8::OP_Fx18() {
 void Chip8::OP_Fx1E() {
 	uint8_t Vx = extract_x(opcode);
 	index += registers.at(Vx);
+}
+
+void Chip8::OP_Fx29() {
+	uint8_t Vx = extract_x(opcode);
+	index = registers.at(Vx);
+}
+
+void Chip8::OP_Fx33() {
+	uint8_t Vx = extract_x(opcode);
+	uint8_t value = registers.at(Vx);
+
+	uint8_t hundreds = value / 100;
+	uint8_t tens = (value - (hundreds * 100)) / 10;
+	uint8_t	ones = value % 10;
+
+	memory.at(index) = hundreds;
+	memory.at(index + 1) = tens;
+	memory.at(index + 2) = ones;
+}
+
+void Chip8::OP_Fx55() {
+	// only copy up to MEMSIZE if OOB
+	size_t max_copy = std::min(BUF_LEN, MEM_SIZE - index);
+
+	for (size_t i = 0; i < max_copy; ++i) {
+		memory.at(index + i) = registers.at(i);
+	}
+}
+
+void Chip8::OP_Fx65() {
+	// only copy up to MEMSIZE if OOB
+	size_t max_copy = std::min(BUF_LEN, MEM_SIZE - index);
+
+	for (size_t i = 0; i < max_copy; ++i) {
+		registers.at(i) = memory.at(index + i);
+	}
 }
