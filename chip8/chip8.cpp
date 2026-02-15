@@ -79,9 +79,7 @@ void Chip8::cycle() {
 
 	pc += 2;
 
-	// Decode / Execute
-	// TODO: map opcode to an op group table + offset
-	// then call into the right OP function
+	decode_execute();
 
 	if (delay_timer > 0) {
 		--delay_timer;
