@@ -73,13 +73,25 @@ void Chip8::load_ROM(const char* filename) {
 	}
 }
 
-void Chip8::Cycle() {
+void Chip8::cycle() {
 	// Fetch instruction
-	opcode = memory.at(pc);
+	opcode = memory.at(pc) << 8u | memory.at(pc + 1);
+
+	pc += 2;
 
 	// Decode / Execute
 	// TODO: map opcode to an op group table + offset
 	// then call into the right OP function
 
-	pc += 2;
+	if (delay_timer > 0) {
+		--delay_timer;
+	}
+
+	if (sound_timer) {
+		--sound_timer;
+	}
+}
+
+void Chip8::decode_execute() {
+	std::invoke(ops_table[opcode >> 12], *this);
 }
