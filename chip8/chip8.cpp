@@ -10,8 +10,8 @@ Chip8::Chip8() {
 	}
 
 	// Init RNG
-	using clock = std::chrono::system_clock;
-	gen.seed(static_cast<unsigned int>(clock::now().time_since_epoch().count()));
+	std::random_device rd;
+	gen.seed(rd());
 	dist = std::uniform_int_distribution<int>(0, 255U);
 
 	// TODO: Init SDL
