@@ -43,8 +43,12 @@ uint8_t Chip8::extract_kk(uint16_t opcode) {
 
 // Peripherals
 const char Chip8::get_current_key() {
-	// TODO
-	return 0;
+	for (auto key : keypad) {
+		if (key) {
+			return static_cast<char>(key);
+		}
+	}
+	return '0';
 }
 
 const char Chip8::wait_keypress() {
