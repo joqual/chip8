@@ -163,7 +163,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\SDL\headers\SDL3-3.2.30\lib\arm64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -180,14 +180,14 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>SDL3.lib</AdditionalDependencies>
+      <AdditionalDependencies>SDL3.lib;</AdditionalDependencies>
       <AdditionalLibraryDirectories>C:\SDL\headers\SDL3-3.2.30\lib\arm64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp" />
     <ClCompile Include="chip8.cpp" />
     <ClCompile Include="ops.cpp" />
+    <ClCompile Include="screen.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="chip8.hpp" />
