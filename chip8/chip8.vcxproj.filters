@@ -29,5 +29,8 @@
     <ClInclude Include="chip8.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="owl.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

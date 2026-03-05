@@ -9,7 +9,10 @@
 #include <unordered_map>
 #include <vector>
 
-class Chip8 {
+#include "owl.hpp"
+
+class Chip8
+{
 private:
 	// Constants
 	static constexpr unsigned int ROM_START_ADDRESS = 0x200;
@@ -20,25 +23,24 @@ private:
 	static constexpr unsigned int BUF_LEN = 16;
 	static constexpr unsigned int PIXEL_ON = 0xFFFFFFFF;
 
-	static const int   FONTSET_SIZE = 80;
-	uint8_t fontset[FONTSET_SIZE] =
-	{
-		0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
-		0x20, 0x60, 0x20, 0x20, 0x70, // 1
-		0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
-		0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
-		0x90, 0x90, 0xF0, 0x10, 0x10, // 4
-		0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
-		0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
-		0xF0, 0x10, 0x20, 0x40, 0x40, // 7
-		0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
-		0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
-		0xF0, 0x90, 0xF0, 0x90, 0x90, // A
-		0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
-		0xF0, 0x80, 0x80, 0x80, 0xF0, // C
-		0xE0, 0x90, 0x90, 0x90, 0xE0, // D
-		0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
-		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+	static const int FONTSET_SIZE = 80;
+	uint8_t fontset[FONTSET_SIZE] = {
+	  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+	  0x20, 0x60, 0x20, 0x20, 0x70, // 1
+	  0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+	  0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+	  0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+	  0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+	  0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+	  0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+	  0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+	  0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+	  0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+	  0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+	  0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+	  0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+	  0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+	  0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 	};
 
 	// Random
@@ -49,44 +51,36 @@ private:
 	using Operation = void (Chip8::*)();
 
 	std::array<Operation, BUF_LEN> ops_table{
-		&Chip8::dispatch0, &Chip8::OP_1nnn, &Chip8::OP_2nnn, &Chip8::OP_3xkk,
-		&Chip8::OP_4xkk, &Chip8::OP_5xy0, &Chip8::OP_6xkk, &Chip8::OP_7xkk,
-		&Chip8::dispatch8, &Chip8::OP_9xy0, &Chip8::OP_Annn, &Chip8::OP_Bnnn,
-		&Chip8::OP_Cxkk, &Chip8::OP_Dxyn, &Chip8::dispatchE, &Chip8::dispatchF,
+	  &Chip8::dispatch0, &Chip8::OP_1nnn, &Chip8::OP_2nnn,   &Chip8::OP_3xkk,
+	  &Chip8::OP_4xkk,   &Chip8::OP_5xy0, &Chip8::OP_6xkk,   &Chip8::OP_7xkk,
+	  &Chip8::dispatch8, &Chip8::OP_9xy0, &Chip8::OP_Annn,   &Chip8::OP_Bnnn,
+	  &Chip8::OP_Cxkk,   &Chip8::OP_Dxyn, &Chip8::dispatchE, &Chip8::dispatchF,
 	};
 
 	std::unordered_map<uint8_t, Operation> ops_0{
-		{0xE0, &Chip8::OP_00E0},
-		{0xEE, &Chip8::OP_00EE},
+	  { 0xE0, &Chip8::OP_00E0 },
+	  { 0xEE, &Chip8::OP_00EE },
 	};
 
 	std::unordered_map<uint8_t, Operation> ops_8{
-		{0x0, &Chip8::OP_8xy0},
-		{0x1, &Chip8::OP_8xy1},
-		{0x2, &Chip8::OP_8xy2},
-		{0x3, &Chip8::OP_8xy3},
-		{0x4, &Chip8::OP_8xy4},
-		{0x5, &Chip8::OP_8xy5},
-		{0x6, &Chip8::OP_8xy6},
-		{0x7, &Chip8::OP_8xy7},
-		{0xE, &Chip8::OP_8xyE},
+	  { 0x0, &Chip8::OP_8xy0 }, { 0x1, &Chip8::OP_8xy1 },
+	  { 0x2, &Chip8::OP_8xy2 }, { 0x3, &Chip8::OP_8xy3 },
+	  { 0x4, &Chip8::OP_8xy4 }, { 0x5, &Chip8::OP_8xy5 },
+	  { 0x6, &Chip8::OP_8xy6 }, { 0x7, &Chip8::OP_8xy7 },
+	  { 0xE, &Chip8::OP_8xyE },
 	};
 
 	std::unordered_map<uint8_t, Operation> ops_E{
-		{0x9E, &Chip8::OP_Ex9E},
-		{0xA1, &Chip8::OP_ExA1},
+	  { 0x9E, &Chip8::OP_Ex9E },
+	  { 0xA1, &Chip8::OP_ExA1 },
 	};
 
 	std::unordered_map<uint8_t, Operation> ops_F{
-		{0x07, &Chip8::OP_Fx07},
-		{0x0A, &Chip8::OP_Fx0A},
-		{0x15, &Chip8::OP_Fx15},
-		{0x18, &Chip8::OP_Fx18},
-		{0x1E, &Chip8::OP_Fx1E},
-		{0x29, &Chip8::OP_Fx29},
-		{0x33, &Chip8::OP_Fx33},
-		{0x55, &Chip8::OP_Fx55},
-		{0x65, &Chip8::OP_Fx65},
+	  { 0x07, &Chip8::OP_Fx07 }, { 0x0A, &Chip8::OP_Fx0A },
+	  { 0x15, &Chip8::OP_Fx15 }, { 0x18, &Chip8::OP_Fx18 },
+	  { 0x1E, &Chip8::OP_Fx1E }, { 0x29, &Chip8::OP_Fx29 },
+	  { 0x33, &Chip8::OP_Fx33 }, { 0x55, &Chip8::OP_Fx55 },
+	  { 0x65, &Chip8::OP_Fx65 },
 	};
 
 	// Dispatching helper functions
@@ -97,18 +91,21 @@ private:
 
 public:
 	// Registers
-	std::array<uint8_t, BUF_LEN> registers{};	// General Purpose Registers
-	uint16_t index{};							// I register
-	uint16_t pc{ ROM_START_ADDRESS };			// Program Counter
-	uint8_t  sp{};								// Stack Pointer
-	uint8_t  delay_timer{};						// DT register
-	uint8_t  sound_timer{};						// ST register
+	std::array<uint8_t, BUF_LEN> registers{}; // General Purpose Registers
+	uint16_t index{};                         // I register
+	uint16_t pc{ ROM_START_ADDRESS };         // Program Counter
+	uint8_t sp{};                             // Stack Pointer
+	uint8_t delay_timer{};                    // DT register
+	uint8_t sound_timer{};                    // ST register
 
 	// Regions
 	std::array<uint8_t, MEM_SIZE> memory{};
 	std::array<uint16_t, BUF_LEN> stack{};
 	std::array<uint8_t, BUF_LEN> keypad{};
 	std::array<std::array<uint32_t, VIDEO_WIDTH>, VIDEO_HEIGHT> video{};
+
+	// Logging
+	owl::Logger& logger = owl::Logger::get();
 
 	// Op
 	uint16_t opcode{};
@@ -117,17 +114,17 @@ public:
 	Chip8();
 
 	// Interface
-	void     load_ROM(const char* filename);
-	uint8_t  generate_random_byte();
-	void	 cycle();
-	void	 decode_execute();
+	void load_ROM(const char* filename);
+	uint8_t generate_random_byte();
+	void cycle();
+	void decode_execute();
 
 	// Helpful bitmasks
 	uint16_t extract_nnn(uint16_t opcode);
-	uint8_t  extract_n(uint16_t opcode);
-	uint8_t  extract_x(uint16_t opcode);
-	uint8_t  extract_y(uint16_t opcode);
-	uint8_t  extract_kk(uint16_t opcode);
+	uint8_t extract_n(uint16_t opcode);
+	uint8_t extract_x(uint16_t opcode);
+	uint8_t extract_y(uint16_t opcode);
+	uint8_t extract_kk(uint16_t opcode);
 
 	// Peripherals
 	const char get_current_key();
