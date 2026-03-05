@@ -50,7 +50,7 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
 	Chip8* emu{ static_cast<Chip8*>(appstate) };
-	std::cout << "Drawing screen" << std::endl;
+	emu->cycle();
 	SDL_SetRenderDrawColor(renderer, 1, 1, 1, 255);
 	SDL_RenderClear(renderer);
 
@@ -74,7 +74,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 	}
 
 	SDL_RenderPresent(renderer);
-	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	return SDL_APP_CONTINUE;
 }
 

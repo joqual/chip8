@@ -15,6 +15,9 @@ Chip8::Chip8()
 	std::random_device rd;
 	gen.seed(rd());
 	dist = std::uniform_int_distribution<int>(0, 255U);
+
+	// Logging
+	logger.set_min_level(owl::Level::DEBUG);
 }
 
 uint8_t Chip8::generate_random_byte()
@@ -113,5 +116,6 @@ void Chip8::cycle()
 
 void Chip8::decode_execute()
 {
+	std::cout << "Executing " << opcode << "\n";
 	std::invoke(ops_table[opcode >> 12], *this);
 }
