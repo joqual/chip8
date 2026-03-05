@@ -37,14 +37,14 @@ namespace owl
 			enabled = enable;
 		}
 
-		void set_max_level(Level level)
+		void set_min_level(Level level)
 		{
-			max_level = level;
+			min_level = level;
 		}
 
 		void log(Level level, const std::string& message)
 		{
-			if (!enabled || level < max_level)
+			if (!enabled || level < min_level)
 			{
 				return;
 			}
@@ -52,18 +52,19 @@ namespace owl
 			std::lock_guard<std::mutex> lock(mtx);
 			if (!file.is_open())
 			{
-				file.open("owl.log", std::ios::app);
+				std::string filename = "owl_" + get_file_time() + ".log";
+				file.open(filename, std::ios::app);
 			}
 
 			if (file)
 			{
-				file << "[" << get_timestamp() << "] "
+				file << "[" << get_log_timestamp() << "] "
 					<< "[" << to_string(level) << "] " << message << std::endl;
 			}
 		}
 
 	private:
-		Logger() : enabled(true), max_level(Level::INFO) {};
+		Logger() : enabled(true), min_level(Level::INFO) {};
 
 		~Logger()
 		{
@@ -74,14 +75,15 @@ namespace owl
 		}
 
 		bool enabled;
-		Level max_level;
+		Level min_level;
 		std::ofstream file;
 		std::mutex mtx;
 
-		std::string get_timestamp() {
+		std::string get_log_timestamp()
+		{
 			auto now = std::chrono::system_clock::now();
 			auto in_time_t = std::chrono::system_clock::to_time_t(now);
-			std::tm bt{}; // Buffer to hold the time safely
+			std::tm bt{};
 
 #if defined(_MSC_VER)
 			localtime_s(&bt, &in_time_t);
@@ -91,6 +93,22 @@ namespace owl
 
 			std::stringstream ss;
 			ss << std::put_time(&bt, "%Y-%m-%d %X");
+			return ss.str();
+		}
+
+		std::string get_file_time()
+		{
+			auto now = std::chrono::system_clock::now();
+			auto in_time_t = std::chrono::system_clock::to_time_t(now);
+			std::tm bt{};
+
+#if defined(_MSC_VER)
+			localtime_s(&bt, &in_time_t);
+#else
+			localtime_r(&in_time_t, &bt);
+#endif
+			std::stringstream ss;
+			ss << std::put_time(&bt, "%Y%m%d");
 			return ss.str();
 		}
 
@@ -115,13 +133,11 @@ namespace owl
 	};
 } // namespace owl
 
-
 // Convenient macros
 #define OWL_DEBUG(msg) owl::Logger::get().log(owl::Level::DEBUG, msg)
 #define OWL_INFO(msg) owl::Logger::get().log(owl::Level::INFO, msg)
 #define OWL_WARN(msg) owl::Logger::get().log(owl::Level::WARNING, msg)
 #define OWL_ERROR(msg) owl::Logger::get().log(owl::Level::ERROR, msg)
 #define OWL_CRITICAL(msg) owl::Logger::get().log(owl::Level::CRITICAL, msg)
-
 
 #endif
