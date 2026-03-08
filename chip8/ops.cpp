@@ -16,8 +16,6 @@ void Chip8::OP_00EE()
 	pc = stack[sp];
 }
 
-
-
 void Chip8::OP_1nnn()
 {
 	OWL_DEBUG("OP_1nnn");
