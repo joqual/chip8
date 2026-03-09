@@ -14,15 +14,6 @@
 class Chip8
 {
 private:
-	// Constants
-	static constexpr unsigned int ROM_START_ADDRESS = 0x200;
-	static constexpr unsigned int FONTSET_START_ADDRESS = 0x050;
-	static constexpr unsigned int VIDEO_HEIGHT = 64;
-	static constexpr unsigned int VIDEO_WIDTH = 32;
-	static constexpr unsigned int MEM_SIZE = 4096;
-	static constexpr unsigned int BUF_LEN = 16;
-	static constexpr unsigned int PIXEL_ON = 0xFFFFFFFF;
-
 	static const int FONTSET_SIZE = 80;
 	uint8_t fontset[FONTSET_SIZE] = {
 	  0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
@@ -49,6 +40,8 @@ private:
 
 	// Function tables
 	using Operation = void (Chip8::*)();
+
+	static constexpr unsigned int BUF_LEN = 16;
 
 	std::array<Operation, BUF_LEN> ops_table{
 	  &Chip8::dispatch0, &Chip8::OP_1nnn, &Chip8::OP_2nnn,   &Chip8::OP_3xkk,
@@ -90,6 +83,15 @@ private:
 	void dispatchF() { std::invoke(ops_F[opcode & 0xFF], *this); }
 
 public:
+	// Constants
+	static constexpr unsigned int ROM_START_ADDRESS = 0x200;
+	static constexpr unsigned int FONTSET_START_ADDRESS = 0x050;
+	static constexpr unsigned int VIDEO_HEIGHT = 64;
+	static constexpr unsigned int VIDEO_WIDTH = 32;
+	static constexpr unsigned int MEM_SIZE = 4096;
+	static constexpr unsigned int PIXEL_ON = 1;
+	static constexpr unsigned int PIXEL_OFF = 1;
+
 	// Registers
 	std::array<uint8_t, BUF_LEN> registers{}; // General Purpose Registers
 	uint16_t index{};                         // I register
@@ -102,7 +104,7 @@ public:
 	std::array<uint8_t, MEM_SIZE> memory{};
 	std::array<uint16_t, BUF_LEN> stack{};
 	std::array<uint8_t, BUF_LEN> keypad{};
-	std::array<std::array<uint32_t, VIDEO_WIDTH>, VIDEO_HEIGHT> video{};
+	std::array<std::array<unsigned int, VIDEO_WIDTH>, VIDEO_HEIGHT> video{};
 
 	// Logging
 	owl::Logger& logger = owl::Logger::get();

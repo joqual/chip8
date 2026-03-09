@@ -5,7 +5,7 @@ void Chip8::OP_00E0()
 	OWL_DEBUG("OP_00E0");
 	for (auto row : video)
 	{
-		row.fill(0);
+		row.fill(0u);
 	}
 }
 
@@ -222,7 +222,8 @@ void Chip8::OP_Dxyn()
 
 	for (int row = 0; row < height; ++row)
 	{
-		uint8_t sprite_byte = memory[index + row];
+		uint8_t sprite_byte = memory[Chip8::FONTSET_START_ADDRESS + index + row];
+		std::cout << "Sprite Byte:" << static_cast<int>(sprite_byte) << "\n";
 
 		for (int col = 0; col < 8; ++col)
 		{
@@ -230,20 +231,24 @@ void Chip8::OP_Dxyn()
 			uint8_t sprite_bit = sprite_byte & (0x80u >> col);
 			uint8_t pixel_y = (y_start_pos + row) % VIDEO_HEIGHT;
 			uint8_t pixel_x = (x_start_pos + col) % VIDEO_WIDTH;
-			uint32_t* pixel = &video.at(pixel_y).at(pixel_x);
+
+			std::cout << "Sprite bit: " << static_cast<int>(sprite_bit) << "\n";
 
 			// Sprite bit is on
 			if (sprite_bit)
 			{
 				// Will erase pixel, set VF
-				if (*pixel == PIXEL_ON)
+				if (video[pixel_x][pixel_y] == PIXEL_ON)
 				{
 					registers[0xF] = 1;
+					video[pixel_x][pixel_y] = 0;
 				}
-
-				// xor the pixel
-				*pixel ^= PIXEL_ON;
+				else
+				{
+					video[pixel_x][pixel_y] = PIXEL_ON;
+				}
 			}
+			std::cout << "Pixel " << static_cast<int>(pixel_x) << " , " << static_cast<int>(pixel_y) << " is now , " << video[pixel_x][pixel_y] << "\n";
 		}
 	}
 }

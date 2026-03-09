@@ -6,7 +6,11 @@
 
 static SDL_Window* window = NULL;
 static SDL_Renderer* renderer = NULL;
-static int toggle = 1;
+float PIX_WIDTH{ 10.0 };
+float PIX_HEIGHT{ 10.0 };
+
+int WINDOW_WIDTH = Chip8::VIDEO_WIDTH * static_cast<int>(PIX_WIDTH);
+int WINDOW_HEIGHT = Chip8::VIDEO_HEIGHT * static_cast<int>(PIX_HEIGHT);
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 {
@@ -18,7 +22,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 		return SDL_APP_FAILURE;
 	}
 
-	if (!SDL_CreateWindowAndRenderer("CHIP-8 Emulator Screen", 640, 320,
+	if (!SDL_CreateWindowAndRenderer("CHIP-8 Emulator Screen", WINDOW_WIDTH, WINDOW_HEIGHT,
 		SDL_WINDOW_RESIZABLE, &window, &renderer))
 	{
 		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
@@ -33,7 +37,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 	*appstate = emu;
 
 	// load program
-	emu->load_ROM("c8_test.c8");
+	emu->load_ROM("1-chip8-logo.ch8");
 	return SDL_APP_CONTINUE;
 }
 
@@ -54,21 +58,16 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 	SDL_SetRenderDrawColor(renderer, 1, 1, 1, 255);
 	SDL_RenderClear(renderer);
 
-	float PIX_WIDTH{ 10.0 };
-	float PIX_HEIGHT{ 10.0 };
-
-	for (int row = 0; row < 64; ++row)
+	for (int row = 0; row < Chip8::VIDEO_HEIGHT; ++row)
 	{
-		for (int col = 0; col < 32; ++col)
+		for (int col = 0; col < Chip8::VIDEO_WIDTH; ++col)
 		{
 			float f_row = static_cast<float>(row);
 			float f_col = static_cast<float>(col);
 			SDL_FRect rect = { f_row * PIX_WIDTH, f_col * PIX_HEIGHT, PIX_WIDTH,
 							  PIX_HEIGHT };
-			int r_value = static_cast<int>(f_row / 64.0 * 255.0);
-			int b_value = static_cast<int>(f_col / 32.0 * 255.0);
-			SDL_SetRenderDrawColor(renderer, r_value, 0, b_value,
-				255);
+			int opacity = emu->video[row][col] == Chip8::PIXEL_ON ? 255 : 0;
+			SDL_SetRenderDrawColor(renderer, opacity, 0, opacity, opacity);
 			SDL_RenderFillRect(renderer, &rect);
 		}
 	}

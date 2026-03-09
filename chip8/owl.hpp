@@ -135,7 +135,7 @@ namespace owl
 } // namespace owl
 
 // Convenient macros
-#define OWL_DEBUG(msg) owl::Logger::get().log(owl::Level::DEBUG, msg)
+#define OWL_DEBUG(msg) owl::Logger::get().log(owl::Level::DEBUG, msg); std::cout << msg << "\n";;
 #define OWL_INFO(msg) owl::Logger::get().log(owl::Level::INFO, msg)
 #define OWL_WARN(msg) owl::Logger::get().log(owl::Level::WARNING, msg)
 #define OWL_ERROR(msg) owl::Logger::get().log(owl::Level::ERROR, msg)

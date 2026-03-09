@@ -105,11 +105,13 @@ void Chip8::cycle()
 
 	if (delay_timer > 0)
 	{
+		std::cout << "Delay timer: " << static_cast<int>(delay_timer) << "\n";
 		--delay_timer;
 	}
 
 	if (sound_timer)
 	{
+		std::cout << "Sound timer: " << static_cast<int>(sound_timer) << "\n";
 		--sound_timer;
 	}
 }
