@@ -62,10 +62,13 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 	{
 		for (int col = 0; col < Chip8::VIDEO_WIDTH; ++col)
 		{
-			float f_row = static_cast<float>(row);
-			float f_col = static_cast<float>(col);
-			SDL_FRect rect = { f_row * PIX_WIDTH, f_col * PIX_HEIGHT, PIX_WIDTH,
-							  PIX_HEIGHT };
+			SDL_FRect rect = {
+				static_cast<float>(col) * PIX_WIDTH,
+				static_cast<float>(row) * PIX_HEIGHT,
+				static_cast<float>(PIX_WIDTH),
+				static_cast<float>(PIX_HEIGHT)
+			};
+
 			int opacity = emu->video[row][col] == Chip8::PIXEL_ON ? 255 : 0;
 			SDL_SetRenderDrawColor(renderer, opacity, 0, opacity, opacity);
 			SDL_RenderFillRect(renderer, &rect);
@@ -73,7 +76,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 	}
 
 	SDL_RenderPresent(renderer);
-	std::this_thread::sleep_for(std::chrono::milliseconds(100));
+	std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	return SDL_APP_CONTINUE;
 }
 

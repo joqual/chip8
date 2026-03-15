@@ -215,22 +215,22 @@ void Chip8::OP_Dxyn()
 	uint8_t width = 8;  // We know sprites are 8 bits wide
 
 	// Wrap if going beyond screen boundaries
-	uint8_t x_start_pos = registers.at(Vx) % VIDEO_WIDTH;
-	uint8_t y_start_pos = registers.at(Vy) % VIDEO_HEIGHT;
+	uint8_t x_start_pos = registers[Vx] % VIDEO_WIDTH;
+	uint8_t y_start_pos = registers[Vy] % VIDEO_HEIGHT;
 
 	registers[0xF] = 0;
 
 	for (int row = 0; row < height; ++row)
 	{
-		uint8_t sprite_byte = memory[Chip8::FONTSET_START_ADDRESS + index + row];
+		uint8_t sprite_byte = memory[index + row];
 		std::cout << "Sprite Byte:" << static_cast<int>(sprite_byte) << "\n";
 
 		for (int col = 0; col < 8; ++col)
 		{
 			// Shift through each bit in the row, left to right
 			uint8_t sprite_bit = sprite_byte & (0x80u >> col);
-			uint8_t pixel_y = (y_start_pos + row) % VIDEO_HEIGHT;
-			uint8_t pixel_x = (x_start_pos + col) % VIDEO_WIDTH;
+			uint8_t py = (y_start_pos + row) % VIDEO_HEIGHT;
+			uint8_t px = (x_start_pos + col) % VIDEO_WIDTH;
 
 			std::cout << "Sprite bit: " << static_cast<int>(sprite_bit) << "\n";
 
@@ -238,17 +238,17 @@ void Chip8::OP_Dxyn()
 			if (sprite_bit)
 			{
 				// Will erase pixel, set VF
-				if (video[pixel_x][pixel_y] == PIXEL_ON)
+				if (video[py][px] == PIXEL_ON)
 				{
 					registers[0xF] = 1;
-					video[pixel_x][pixel_y] = 0;
+					video[py][px] = 0;
 				}
 				else
 				{
-					video[pixel_x][pixel_y] = PIXEL_ON;
+					video[py][px] = PIXEL_ON;
 				}
 			}
-			std::cout << "Pixel " << static_cast<int>(pixel_x) << " , " << static_cast<int>(pixel_y) << " is now , " << video[pixel_x][pixel_y] << "\n";
+			std::cout << "Pixel " << static_cast<int>(px) << " , " << static_cast<int>(py) << " is now , " << video[py][px] << "\n";
 		}
 	}
 }
