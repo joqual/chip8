@@ -102,7 +102,16 @@ void Chip8::cycle()
 	pc += 2;
 
 	decode_execute();
+}
 
+void Chip8::decode_execute()
+{
+	std::cout << "Executing " << opcode << "\n";
+	std::invoke(ops_table[opcode >> 12], *this);
+}
+
+void Chip8::update_timers()
+{
 	if (delay_timer > 0)
 	{
 		std::cout << "Delay timer: " << static_cast<int>(delay_timer) << "\n";
@@ -114,10 +123,4 @@ void Chip8::cycle()
 		std::cout << "Sound timer: " << static_cast<int>(sound_timer) << "\n";
 		--sound_timer;
 	}
-}
-
-void Chip8::decode_execute()
-{
-	std::cout << "Executing " << opcode << "\n";
-	std::invoke(ops_table[opcode >> 12], *this);
 }

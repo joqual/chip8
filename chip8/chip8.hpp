@@ -86,8 +86,8 @@ public:
 	// Constants
 	static constexpr unsigned int ROM_START_ADDRESS = 0x200;
 	static constexpr unsigned int FONTSET_START_ADDRESS = 0x050;
-	static constexpr unsigned int VIDEO_HEIGHT = 64;
-	static constexpr unsigned int VIDEO_WIDTH = 32;
+	static constexpr unsigned int VIDEO_HEIGHT = 32;
+	static constexpr unsigned int VIDEO_WIDTH = 64;
 	static constexpr unsigned int MEM_SIZE = 4096;
 	static constexpr unsigned int PIXEL_ON = 1;
 	static constexpr unsigned int PIXEL_OFF = 1;
@@ -120,6 +120,7 @@ public:
 	uint8_t generate_random_byte();
 	void cycle();
 	void decode_execute();
+	void update_timers();
 
 	// Helpful bitmasks
 	uint16_t extract_nnn(uint16_t opcode);

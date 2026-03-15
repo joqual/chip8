@@ -167,7 +167,7 @@ void Chip8::OP_8xyE()
 	OWL_DEBUG("OP_8xyE");
 	uint8_t Vx = extract_x(opcode);
 
-	registers[0xF] = (registers.at(Vx) & 0x80) >> 8 ? 1 : 0;
+	registers[0xF] = registers.at(Vx) >> 7;
 
 	registers.at(Vx) = registers.at(Vx) << 1;
 }
@@ -195,7 +195,7 @@ void Chip8::OP_Bnnn()
 {
 	OWL_DEBUG("OP_Bnnn");
 	uint16_t addr = extract_nnn(opcode);
-	pc += static_cast<uint16_t>(registers[0]) + addr;
+	pc = static_cast<uint16_t>(registers[0]) + addr;
 }
 
 void Chip8::OP_Cxkk()
@@ -222,15 +222,23 @@ void Chip8::OP_Dxyn()
 
 	for (int row = 0; row < height; ++row)
 	{
+		if (y_start_pos + row >= VIDEO_HEIGHT)
+		{
+			break;
+		}
 		uint8_t sprite_byte = memory[index + row];
 		std::cout << "Sprite Byte:" << static_cast<int>(sprite_byte) << "\n";
 
 		for (int col = 0; col < 8; ++col)
 		{
+			if (x_start_pos + col >= VIDEO_WIDTH)
+			{
+				break;
+			}
 			// Shift through each bit in the row, left to right
 			uint8_t sprite_bit = sprite_byte & (0x80u >> col);
-			uint8_t py = (y_start_pos + row) % VIDEO_HEIGHT;
-			uint8_t px = (x_start_pos + col) % VIDEO_WIDTH;
+			uint8_t py = (y_start_pos + row);
+			uint8_t px = (x_start_pos + col);
 
 			std::cout << "Sprite bit: " << static_cast<int>(sprite_bit) << "\n";
 
@@ -319,7 +327,11 @@ void Chip8::OP_Fx29()
 {
 	OWL_DEBUG("OP_Fx29");
 	uint8_t Vx = extract_x(opcode);
-	index = registers.at(Vx);
+	//index = registers.at(Vx);
+	uint8_t digit = registers.at(Vx) & 0x0Fu; // Font only goes 0-F
+
+	// Each character is 5 bytes high
+	index = Chip8::FONTSET_START_ADDRESS + (digit * 5);
 }
 
 void Chip8::OP_Fx33()

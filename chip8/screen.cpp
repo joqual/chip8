@@ -29,7 +29,9 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 		return SDL_APP_FAILURE;
 	}
 
-	SDL_SetRenderLogicalPresentation(renderer, 640, 480,
+	SDL_SetRenderLogicalPresentation(renderer,
+		Chip8::VIDEO_WIDTH,
+		Chip8::VIDEO_HEIGHT,
 		SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	// Init chip8
@@ -54,7 +56,15 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
 	Chip8* emu{ static_cast<Chip8*>(appstate) };
-	emu->cycle();
+	// Run multiple instructions per frame (e.g., 10 cycles @ 60fps = 600Hz)
+	for (int i = 0; i < 10; ++i)
+	{
+		emu->cycle();
+	}
+
+	// Update timers at 60Hz (Chip-8 spec)
+	emu->update_timers();
+
 	SDL_SetRenderDrawColor(renderer, 1, 1, 1, 255);
 	SDL_RenderClear(renderer);
 
@@ -63,10 +73,10 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 		for (int col = 0; col < Chip8::VIDEO_WIDTH; ++col)
 		{
 			SDL_FRect rect = {
-				static_cast<float>(col) * PIX_WIDTH,
-				static_cast<float>(row) * PIX_HEIGHT,
-				static_cast<float>(PIX_WIDTH),
-				static_cast<float>(PIX_HEIGHT)
+				static_cast<float>(col),
+				static_cast<float>(row),
+				1.0f,
+				1.0f
 			};
 
 			int opacity = emu->video[row][col] == Chip8::PIXEL_ON ? 255 : 0;
@@ -76,7 +86,7 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 	}
 
 	SDL_RenderPresent(renderer);
-	std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
 	return SDL_APP_CONTINUE;
 }
 
