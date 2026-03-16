@@ -4,13 +4,20 @@
 
 #include "chip8.hpp"
 
-static SDL_Window* window = NULL;
-static SDL_Renderer* renderer = NULL;
-float PIX_WIDTH{ 10.0 };
-float PIX_HEIGHT{ 10.0 };
+struct AppState
+{
+	// SDL will handle window and renderer
+	SDL_Window* window{ nullptr };
+	SDL_Renderer* renderer{ nullptr };
+	std::unique_ptr<Chip8> emu;
 
-int WINDOW_WIDTH = Chip8::VIDEO_WIDTH * static_cast<int>(PIX_WIDTH);
-int WINDOW_HEIGHT = Chip8::VIDEO_HEIGHT * static_cast<int>(PIX_HEIGHT);
+	~AppState()
+	{
+		// SDL3 specific cleanup
+		SDL_DestroyRenderer(renderer);
+		SDL_DestroyWindow(window);
+	}
+};
 
 SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 {
@@ -18,28 +25,30 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 
 	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
-		SDL_Log("Couldn't initialize SDL: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
 
-	if (!SDL_CreateWindowAndRenderer("CHIP-8 Emulator Screen", WINDOW_WIDTH, WINDOW_HEIGHT,
-		SDL_WINDOW_RESIZABLE, &window, &renderer))
+	auto state = std::make_unique<AppState>();
+
+	if (!SDL_CreateWindowAndRenderer("CHIP-8 Emulator Screen", Chip8::VIDEO_WIDTH, Chip8::VIDEO_HEIGHT,
+		SDL_WINDOW_RESIZABLE, &state->window, &state->renderer))
 	{
-		SDL_Log("Couldn't create window/renderer: %s", SDL_GetError());
 		return SDL_APP_FAILURE;
 	}
 
-	SDL_SetRenderLogicalPresentation(renderer,
+	SDL_SetRenderLogicalPresentation(state->renderer,
 		Chip8::VIDEO_WIDTH,
 		Chip8::VIDEO_HEIGHT,
 		SDL_LOGICAL_PRESENTATION_LETTERBOX);
 
 	// Init chip8
-	Chip8* emu = new Chip8();
-	*appstate = emu;
+	state->emu = std::make_unique<Chip8>();
 
 	// load program
-	emu->load_ROM("1-chip8-logo.ch8");
+	state->emu->load_ROM("1-chip8-logo.ch8");
+
+	// Transfer ownership of app state to SDL
+	*appstate = state.release();
 	return SDL_APP_CONTINUE;
 }
 
@@ -55,18 +64,18 @@ SDL_AppResult SDL_AppEvent(void* appstate, SDL_Event* event)
 /* This function runs once per frame, and is the heart of the program. */
 SDL_AppResult SDL_AppIterate(void* appstate)
 {
-	Chip8* emu{ static_cast<Chip8*>(appstate) };
+	AppState* state{ static_cast<AppState*>(appstate) };
 	// Run multiple instructions per frame (e.g., 10 cycles @ 60fps = 600Hz)
 	for (int i = 0; i < 10; ++i)
 	{
-		emu->cycle();
+		state->emu->cycle();
 	}
 
 	// Update timers at 60Hz (Chip-8 spec)
-	emu->update_timers();
+	state->emu->update_timers();
 
-	SDL_SetRenderDrawColor(renderer, 1, 1, 1, 255);
-	SDL_RenderClear(renderer);
+	SDL_SetRenderDrawColor(state->renderer, 1, 1, 1, 255);
+	SDL_RenderClear(state->renderer);
 
 	for (int row = 0; row < Chip8::VIDEO_HEIGHT; ++row)
 	{
@@ -79,18 +88,22 @@ SDL_AppResult SDL_AppIterate(void* appstate)
 				1.0f
 			};
 
-			int opacity = emu->video[row][col] == Chip8::PIXEL_ON ? 255 : 0;
-			SDL_SetRenderDrawColor(renderer, opacity, 0, opacity, opacity);
-			SDL_RenderFillRect(renderer, &rect);
+			int opacity = state->emu->video[row][col] == Chip8::PIXEL_ON ? 255 : 0;
+			SDL_SetRenderDrawColor(state->renderer, opacity, 0, opacity, opacity);
+			SDL_RenderFillRect(state->renderer, &rect);
 		}
 	}
 
-	SDL_RenderPresent(renderer);
-	//std::this_thread::sleep_for(std::chrono::milliseconds(500));
+	SDL_RenderPresent(state->renderer);
+
 	return SDL_APP_CONTINUE;
 }
 
 void SDL_AppQuit(void* appstate, SDL_AppResult result)
 {
-	delete appstate;
+	if (appstate)
+	{
+		// Reclaim ownership of app state, let it go out of scope to free memory
+		std::unique_ptr<AppState> cleanup{ static_cast<AppState*>(appstate) };
+	}
 }
