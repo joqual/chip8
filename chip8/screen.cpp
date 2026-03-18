@@ -45,7 +45,7 @@ SDL_AppResult SDL_AppInit(void** appstate, int argc, char* argv[])
 	state->emu = std::make_unique<Chip8>();
 
 	// load program
-	state->emu->load_ROM("1-chip8-logo.ch8");
+	state->emu->load_ROM("3-corax+.ch8");
 
 	// Transfer ownership of app state to SDL
 	*appstate = state.release();

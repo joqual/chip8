@@ -1,13 +1,10 @@
 #pragma once
 
-#include <algorithm>
 #include <array>
 #include <cstdint>
-#include <fstream>
 #include <functional>
 #include <random>
 #include <unordered_map>
-#include <vector>
 
 #include "owl.hpp"
 
